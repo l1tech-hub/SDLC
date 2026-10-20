@@ -1,0 +1,29 @@
+.root {
+    -fx-background-color: #2f2f2f;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #cccccc;
+}
+
+.pulse-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ff6b6b;
+}
+
+.main-button {
+    -fx-font-size: 14px;
+    -fx-padding: 8 20 8 20;
+}
