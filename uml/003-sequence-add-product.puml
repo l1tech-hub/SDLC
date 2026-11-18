@@ -1,0 +1,70 @@
+@startuml 003-sequence-add-product
+title Диаграмма последовательности: UC-2 «Добавить продукт»
+
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign left
+autonumber
+
+actor "Сотрудник" as U
+participant "vm:ProductEditViewModel" as VM
+participant "service:ProductService" as S
+participant "validator:ProductValidator" as V
+participant "images:ImageStore" as IMG
+participant "uow:UnitOfWork" as UoW
+
+U -> VM : заполнить поля, выбрать изображение,\nнажать «Сохранить»
+activate VM
+VM -> S : CreateAsync(input)
+activate S
+S -> V : Validate(input)
+activate V
+V --> S : результат проверки
+deactivate V
+
+break есть ошибки в полях
+  S --> VM : OperationResult(ошибки по полям)
+  VM --> U : красный текст рядом с полями,\nокно остаётся открытым
+end
+
+S -> S : MakeKey(name)
+
+opt изображение выбрано
+  S -> IMG : ImportAsync(sourcePath)
+  activate IMG
+  IMG --> S : путь images/guid.ext или ошибка
+  deactivate IMG
+  break изображение не прошло проверку
+    S --> VM : OperationResult(ошибка изображения)
+    VM --> U : сообщение об ошибке,\nокно остаётся открытым
+  end
+end
+
+S -> UoW : BeginAsync()
+activate UoW
+UoW --> S : транзакция начата
+S -> UoW : проверить уникальность ключа,\nдобавить продукт
+UoW --> S : результат записи
+
+alt ключ занят или сбой записи в БД
+  S -> UoW : RollbackAsync()
+  UoW --> S : транзакция отменена
+  opt изображение было скопировано
+    S -> IMG : DeleteAsync(путь)
+    activate IMG
+    IMG --> S : файл удалён
+    deactivate IMG
+  end
+  S --> VM : OperationResult(ошибка)
+  VM --> U : сообщение об ошибке,\nокно остаётся открытым
+else ключ свободен и запись выполнена
+  S -> UoW : CommitAsync()
+  UoW --> S : транзакция зафиксирована
+  S --> VM : Success
+  VM --> U : окно закрыто,\nпродукт в списке
+  destroy VM
+end
+deactivate UoW
+deactivate S
+@enduml

@@ -1,0 +1,53 @@
+@startuml 004-state-writeoff-panel
+title Диаграмма состояний: панель списания (WriteOffViewModel)
+
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam StateBackgroundColor White
+skinparam StateBorderColor Black
+skinparam ArrowColor Black
+skinparam nodesep 150
+skinparam ranksep 80
+hide empty description
+
+state "Нет блюда" as NoDish
+state "Блюдо выбрано" as Selected
+state "Порции некорректны" as Invalid
+state "Расход рассчитан" as Calculated
+state "Выполняется" as Running
+state "Успех" as Success
+state "Нехватка" as Shortage
+state "Ошибка" as Failure
+state ResultChoice <<choice>>
+
+NoDish : entry / «Списать» и поле порций недоступны
+Selected : entry / поле порций доступно
+Invalid : entry / показать ошибку у поля
+Calculated : entry / показать расход в граммах
+Calculated : entry / «Списать» доступна
+Running : entry / заблокировать элементы
+Running : entry / показать индикатор выполнения
+Success : entry / показать сообщение об успехе
+Shortage : entry / показать окно нехватки
+Failure : entry / показать сообщение об ошибке
+
+[*] --> NoDish
+NoDish -down---> Selected : выбрано блюдо
+NoDish -left-> [*] : панель закрыта
+Selected -down-> Calculated : [порции от 1 до 999]
+Selected -left--> Invalid : [иначе]
+Invalid -down-> Calculated : ввод изменён\n[от 1 до 999]
+Calculated -up-> Invalid : ввод изменён\n[вне 1…999]
+Calculated --> Running : нажата «Списать»
+Running -down-> ResultChoice
+ResultChoice -left-> Success : [транзакция\nзафиксирована]
+ResultChoice -down-> Shortage : [остатков\nнедостаточно, откат]
+ResultChoice -down-> Failure : [исключение,\nоткат]
+Success -up-> Calculated : остатки обновлены
+Shortage -up-> Calculated : окно закрыто
+Failure -up-> Calculated : сообщение закрыто
+Invalid -up-> NoDish : выбор снят\nили блюдо удалено
+Calculated -up-> NoDish : выбор снят\nили блюдо удалено
+@enduml
