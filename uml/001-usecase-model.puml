@@ -1,0 +1,63 @@
+@startuml 001-usecase-model
+title Диаграмма вариантов использования системы CafeCalc
+
+top to bottom direction
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ActorBackgroundColor White
+skinparam ActorBorderColor Black
+skinparam UsecaseBackgroundColor White
+skinparam UsecaseBorderColor Black
+skinparam RectangleBackgroundColor White
+skinparam NoteBackgroundColor White
+skinparam NoteBorderColor Black
+skinparam ArrowColor Black
+
+actor "Сотрудник кафе" as Employee
+actor "База данных" as DB
+
+rectangle "CafeCalc" {
+  usecase "UC-1\nПросмотреть склад,\nнайти и выбрать продукт" as UC1
+  usecase "UC-2\nДобавить продукт" as UC2
+  usecase "UC-3\nПополнить, изменить,\nудалить продукт" as UC3
+  usecase "UC-4\nПросмотреть меню, найти блюдо,\nоткрыть карточку и рецепт" as UC4
+  usecase "UC-5\nСоздать, изменить,\nудалить блюдо" as UC5
+  usecase "UC-6\nСписать продукты по блюду" as UC6
+  usecase "UC-7\nПросмотреть журнал списаний" as UC7
+  usecase "UC-8\nСоздать резервную копию\nи восстановить данные" as UC8
+  usecase "UC-9\nПроверить вводимые данные" as UC9
+  usecase "UC-10\nИмпортировать изображение" as UC10
+  usecase "UC-11\nПоказать нехватку продуктов" as UC11
+  note bottom of UC10 : условие расширения:\nвыбран файл\nизображения
+  note bottom of UC11 : условие расширения:\nнехватка продуктов
+}
+
+Employee --> UC1
+Employee --> UC2
+Employee --> UC3
+Employee --> UC4
+Employee --> UC5
+Employee --> UC6
+Employee --> UC7
+Employee --> UC8
+
+UC1 --> DB
+UC2 --> DB
+UC3 --> DB
+UC4 --> DB
+UC5 --> DB
+UC6 --> DB
+UC7 --> DB
+UC8 --> DB
+
+UC2 ..> UC9 : <<include>>
+UC3 ..> UC9 : <<include>>
+UC5 ..> UC9 : <<include>>
+
+UC10 ..> UC2 : <<extend>>
+UC10 ..> UC3 : <<extend>>
+UC10 ..> UC5 : <<extend>>
+UC11 ..> UC6 : <<extend>>
+
+@enduml
